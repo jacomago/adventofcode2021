@@ -63,7 +63,7 @@ pub fn problem2() -> String {
                 Direction::Forward => {
                     b_horiz_pos += instruction.distance;
                     b_depth_pos += aim * instruction.distance
-                },
+                }
                 Direction::Down => aim += instruction.distance,
                 Direction::Up => aim -= instruction.distance,
                 Direction::Error => println!("Unable to parse string."),
