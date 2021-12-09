@@ -47,17 +47,28 @@ fn calc_score(game: &Vec<Vec<i32>>, prev_rolls: &Vec<i32>) -> i32 {
     sum * prev_rolls.last().unwrap()
 }
 
-fn play_games_and_score(rolls: Vec<i32>, games: Vec<Vec<Vec<i32>>>) -> (Vec<i32>, Vec<Vec<i32>>) {
+fn play_games_and_score(
+    rolls: &Vec<i32>,
+    games: &Vec<Vec<Vec<i32>>>,
+) -> Vec<(Vec<i32>, Vec<Vec<i32>>)> {
     let mut prev_rolls = vec![];
+    let mut winning_prev_rolls = vec![];
+    let mut winning_games: Vec<Vec<Vec<i32>>> = vec![];
+
     for roll in rolls {
-        prev_rolls.push(roll);
-        for game in &games {
-            if check_bingo(&prev_rolls, &game) {
-                return (prev_rolls, game.to_vec());
+        prev_rolls.push(*roll);
+        for game in games {
+            if check_bingo(&prev_rolls, &game) && !winning_games.contains(game) {
+                winning_prev_rolls.push(prev_rolls.to_vec());
+                winning_games.push(game.to_vec());
             }
         }
     }
-    (prev_rolls, vec![])
+    winning_prev_rolls
+        .into_iter()
+        .zip(winning_games.into_iter())
+        .map(|(x, y)| (x, y))
+        .collect()
 }
 
 fn file_to_solution(filename: &str) -> String {
@@ -102,9 +113,16 @@ fn file_to_solution(filename: &str) -> String {
     }
     games.push(game);
 
-    let (prev_rolls, winning_game) = play_games_and_score(rolls, games);
-    let result_score = calc_score(&winning_game, &prev_rolls);
-    format!("a: {}, b: {b}", result_score, b = 0)
+    let rolls_to_winning_games = play_games_and_score(&rolls, &games);
+
+    // a
+    let pair = rolls_to_winning_games.first().unwrap();
+    let a_result_score = calc_score(&pair.1, &pair.0);
+
+    let pair = rolls_to_winning_games.last().unwrap();
+    let b_result_score = calc_score(&pair.1, &pair.0);
+
+    format!("a: {}, b: {b}", a_result_score, b = b_result_score)
 }
 
 // The score of the winning board can now be calculated.
@@ -112,10 +130,12 @@ fn file_to_solution(filename: &str) -> String {
 // in this case, the sum is 188. Then, multiply that sum by
 // the number that was just called when the board won, 24,
 //to get the final score, 188 * 24 = 4512.
+
+// part b get the last game, not the first game to win.
 #[test]
 fn test_example() {
     assert_eq!(
         file_to_solution("./src/resources/test/input04.csv"),
-        "a: 4512, b: 0"
+        "a: 4512, b: 1924"
     );
 }
