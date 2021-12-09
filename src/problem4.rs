@@ -119,6 +119,7 @@ fn file_to_solution(filename: &str) -> String {
     let pair = rolls_to_winning_games.first().unwrap();
     let a_result_score = calc_score(&pair.1, &pair.0);
 
+    // b
     let pair = rolls_to_winning_games.last().unwrap();
     let b_result_score = calc_score(&pair.1, &pair.0);
 
