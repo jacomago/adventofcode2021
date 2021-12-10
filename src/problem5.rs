@@ -21,40 +21,28 @@ fn parse_article(article: String) -> Vec<Vec<i32>> {
 }
 
 fn update_grid(grid: &mut HashMap<(i32, i32), i32>, line: &Vec<Vec<i32>>, include_diagonals: bool) {
+    let mut x_direc = 0;
+    let mut y_direc = 0;
+
     if line[0][0] == line[1][0] {
-        let range = if line[0][1] - line[1][1] < 0 {
-            line[0][1]..=line[1][1]
-        } else {
-            line[1][1]..=line[0][1]
-        };
-
-        let coord_x = line[0][0];
-        for coord_y in range {
-            let cur_value = grid.entry((coord_x, coord_y)).or_insert(0);
-            *cur_value += 1;
-        }
+        y_direc = if line[0][1] - line[1][1] < 0 { 1 } else { -1 };
     } else if line[0][1] == line[1][1] {
-        let range = if line[0][0] - line[1][0] < 0 {
-            line[0][0]..=line[1][0]
-        } else {
-            line[1][0]..=line[0][0]
-        };
-
-        let coord_y = line[0][1];
-        for coord_x in range {
-            let cur_value = grid.entry((coord_x, coord_y)).or_insert(0);
-            *cur_value += 1;
-        }
+        x_direc = if line[0][0] - line[1][0] < 0 { 1 } else { -1 };
     } else if include_diagonals {
+        x_direc = if line[0][0] - line[1][0] < 0 { 1 } else { -1 };
+        y_direc = if line[0][1] - line[1][1] < 0 { 1 } else { -1 };
+    }
+
+    if x_direc != 0 || y_direc != 0 {
         let mut coord_x = line[0][0];
         let mut coord_y = line[0][1];
 
-        let x_direc = if line[0][0] - line[1][0] < 0 {1} else {-1};
-        let y_direc = if line[0][1] - line[1][1] < 0 {1} else {-1};
-        
-        while (coord_x, coord_y) != (line[1][0], line[1][1]) {
-            let cur_value = grid.entry((coord_x, coord_y)).or_insert(0);
-            *cur_value += 1;
+        loop {
+            *grid.entry((coord_x, coord_y)).or_insert(0) += 1;
+
+            if (coord_x, coord_y) == (line[1][0], line[1][1]) {
+                break;
+            }
 
             coord_x += x_direc;
             coord_y += y_direc;
@@ -80,6 +68,20 @@ fn count_grid(grid: HashMap<(i32, i32), i32>, min: i32) -> i32 {
     sum
 }
 
+#[allow(dead_code)]
+fn pretty_print_grid(grid: &HashMap<(i32, i32), i32>) {
+    println!("grid is: ");
+    for row in 0..=9 {
+        for col in 0..=9 {
+            match grid.get(&(col, row)) {
+                Some(g) => print!("{}", g),
+                None => print!("-"),
+            };
+        }
+        println!("");
+    }
+}
+
 fn file_to_solution(filename: &str) -> String {
     let path = Path::new(filename);
     let display = path.display();
@@ -100,9 +102,11 @@ fn file_to_solution(filename: &str) -> String {
     }
 
     let grid = calc_grid(&vent_lines, false);
+    // pretty_print_grid(&grid);
     let a = count_grid(grid, 2);
 
     let grid = calc_grid(&vent_lines, true);
+    // pretty_print_grid(&grid);
     let b = count_grid(grid, 2);
 
     format!("a: {}, b: {b}", a, b = b)
