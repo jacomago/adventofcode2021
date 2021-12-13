@@ -6,6 +6,7 @@ mod problem5;
 mod problem6;
 mod problem7;
 mod problem8;
+mod problem9;
 
 fn main() {
     println!("Day 1: {}", problem1::problem1());
@@ -16,4 +17,5 @@ fn main() {
     println!("Day 6: {}", problem6::main());
     println!("Day 7: {}", problem7::main());
     println!("Day 8: {}", problem8::main());
+    println!("Day 9: {}", problem9::main());
 }
